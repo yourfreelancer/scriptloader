@@ -1,26 +1,54 @@
-var MScriptLoader = function () {
+/**
+ * ScriptLoader class
+ * @class
+ * @returns {Object} ScriptLoader
+ */
+var ScriptLoader = function () {
 	"use strict";
 
-	var G_sResourcesRoot = '/uploads/';
-	//var G_sResourcesRoot = './';
+    /**
+     * Directory with scripts (begins and ends with '/')
+     * @static
+     * @type {String}
+     */
+	var ResourcesRoot = '/uploads/';
 
-	var G_aScripts = [
-		['http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js', G_sResourcesRoot + 'resources/js/ejs.js'],
-		[G_sResourcesRoot + 'resources/js/jquerypp.min.js', 'http://www.youtube.com/player_api',
-			G_sResourcesRoot + 'resources/js/roundabout.js', G_sResourcesRoot + 'resources/js/jquery.address.min.js'],
-		[G_sResourcesRoot + 'resources/js/navigation.js', G_sResourcesRoot + 'resources/js/fancybox/source/jquery.fancybox.pack.js',
-			G_sResourcesRoot + 'resources/js/worldmap.js', G_sResourcesRoot + 'resources/js/contentloader.js',
-			G_sResourcesRoot + 'resources/js/headernav.js', G_sResourcesRoot + 'resources/js/people.js',
-			G_sResourcesRoot + 'resources/js/popup.js']
+    /**
+     * Two dimensional Array with scripts to inject to displayed page
+     * First dimension loads scripts based on specified order synchronously
+     * Second dimension loads scripts asynchronously
+     * - [A: loaded first]
+     * - [B: loaded second]
+     * - [C: loaded third]
+     * A, B, C: can contain multiple scripts which are loaded asynchronously,
+     * but always B waits for all scripts from A to be loaded and C waits for B...
+     * @static
+     * @type {Array}
+     */
+	var Scripts = [
+		[   'http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js'
+        ,   ResourcesRoot + 'resources/js/ejs.js'
+        ],
+		[   'http://www.youtube.com/player_api'
+		,   ResourcesRoot + 'resources/js/jquery.address.min.js'
+        ],
+		[   ResourcesRoot + 'resources/js/fancybox/source/jquery.fancybox.pack.js'
+		,   ResourcesRoot + 'resources/js/contentloader.js'
+        ]
 	];
 
 	return {
+        /**
+         * Constructor called as new ScriptLoader().init();
+         * @constructor
+         * @returns {Object}
+         */
 		init: function () {
-			var OScriptLoader = function (aScripts) {
-				if (!aScripts) {
+			var OScriptLoader = function (Scripts) {
+				if (!Scripts) {
 					return;
 				}
-				this.aScripts = aScripts;
+				this.Scripts = Scripts;
 				this.aQueue = [];
 
 				this.getNextOne();
@@ -48,8 +76,8 @@ var MScriptLoader = function () {
 			};
 
 			OScriptLoader.prototype.getNextOne = function () {
-				if (this.aScripts.length > 0 && this.aQueue.length === 0) {
-					this.aQueue = this.aScripts.shift();
+				if (this.Scripts.length > 0 && this.aQueue.length === 0) {
+					this.aQueue = this.Scripts.shift();
 					var iQueueLength = this.aQueue.length, i = 0, sScriptPath;
 					for (i; i < iQueueLength; i += 1) {
 						sScriptPath = this.aQueue[i];
@@ -58,10 +86,14 @@ var MScriptLoader = function () {
 				}
 			};
 
-			return new OScriptLoader(G_aScripts);
+			return new OScriptLoader(Scripts);
 		}
 	};
 
 };
 
-var OSL = new MScriptLoader().init();
+/**
+ *
+ * @type {ScriptLoader}
+ */
+var OSL = new ScriptLoader().init();
